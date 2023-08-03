@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>停车场费用计算</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-size: 18px;
+            color: #333;
+        }
+
+        input[type="datetime-local"] {
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor:pointer; 
+            font-size:18px; 
+        }
+
+        input[type="button"]:hover {
+          background-color:#45a049; 
+        }
+
+        input[type="button"]:active {
+          background-color:#3e8e41; 
+          box-shadow:0 5px #666; 
+          transform:translateY(4px); 
+        }
+
+        p#result {
+          margin-top:40px; 
+          font-size:36px; 
+          color:red; 
+          text-align:center; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>停车场费用计算</h1>
+        <form id="form">
+            <label for="entryTime">进场时间:</label>
+            <input type="datetime-local" id="entryTime" name="entryTime"><br><br>
+            <label for="exitTime">出场时间:</label>
+            <input type="datetime-local" id="exitTime" name="exitTime"><br><br>
+            <input type="button" value="计算" onclick="calculate()">
+        </form>
+        <p id="result"></p>
+    </div>
+
+    <script>
+       function calculate() {
+           var entryTime = new Date(document.getElementById("entryTime").value);
+           var exitTime = new Date(document.getElementById("exitTime").value);
+           var totalTimeInMinutes = (exitTime - entryTime) / 1000 / 60; // 计算总时长（分钟）
+           var totalFee = 0; // 总费用
+
+           // 计算总费用
+           if (totalTimeInMinutes <= 24 * 60) {
+               // 停车总时长不超过24小时
+               var nightTime = 0; // 夜间时长（分钟）
+               var dayTime = 0; // 白天时长（分钟）
+               var nightFee = 0; // 夜间费用
+               var dayFee = 0; // 白天费用
+
+               // 计算夜间和白天时长
+               for (var i = new Date(entryTime.getTime()); i < exitTime; i.setMinutes(i.getMinutes() +1)) {
+                   if (i.getHours() >=22 || i.getHours()<8) {
+                       nightTime++;
+                   } else {
+                       dayTime++;
+                   }
+               }
+
+               // 计算夜间和白天费用
+               nightFee=Math.ceil(nightTime/30)*2;
+               if(nightFee>10){
+                   nightFee=10;
+               }
+               dayFee=Math.ceil(dayTime/30)*7.5;
+
+               totalFee=nightFee+dayFee;
+               if(totalFee>120){
+                   totalFee=120;
+               }
+           } else {
+               // 停车总时长超过24小时
+               var days=Math.floor(totalTimeInMinutes/(24*60));
+               totalFee=days*120;
+
+               var remainingEntryTime=new Date(entryTime.getTime()+days*24*60*60*1000);
+               var remainingTotalTimeInMinutes=(exitTime-remainingEntryTime)/1000/60;
+               if(remainingTotalTimeInMinutes<=24*60){
+                   var nightTime=0;
+                   var dayTime=0;
+                   var nightFee=0;
+                   var dayFee=0;
+
+                   for(var i=new Date(remainingEntryTime.getTime());i<exitTime;i.setMinutes(i.getMinutes()+1)){
+                       if(i.getHours()>=22||i.getHours()<8){
+                           nightTime++;
+                       }else{
+                           dayTime++;
+                       }
+                   }
+
+                   nightFee=Math.ceil(nightTime/30)*2;
+                   if(nightFee>10){
+                       nightFee=10;
+                   }
+                   dayFee=Math.ceil(dayTime/30)*7.5;
+
+                   totalFee+=nightFee+dayFee;
+                   if(totalFee-days*120>120){
+                       totalFee=days*120+120;
+                   }
+               }else{
+                   totalFee+=120;
+               }
+           }
+
+           var hours=Math.floor(totalTimeInMinutes/60);
+           var minutes=totalTimeInMinutes%60;
+           document.getElementById("result").innerHTML="停车总时长: "+hours+" 小时 "+minutes+" 分钟<br>停车费用: "+totalFee.toFixed(2)+" 元";
+       }
+    </script>
+</body>
+</html>
