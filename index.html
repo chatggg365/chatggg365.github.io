@@ -52,8 +52,8 @@
             text-align: center;
         }
         .highlight {
-            color: red; 
-            font-size: 24px; 
+            color:red; 
+            font-size:24px; 
         }
     </style>
 </head>
@@ -69,9 +69,9 @@
     <p id="result"></p>
 
     <script>
-        const form = document.getElementById('form');
-        const result = document.getElementById('result');
-        form.addEventListener('submit', (event) => {
+         const form = document.getElementById('form');
+         const result = document.getElementById('result');
+         form.addEventListener('submit', (event) => {
              event.preventDefault();
              const entryTime = new Date(document.getElementById('entry-time').value);
              const exitTime = new Date(document.getElementById('exit-time').value);
@@ -91,7 +91,11 @@
                  totalFee=days*120; 
                  const remainingDuration=duration-days*24*60*60*1000; 
                  const remainingEntryTime=new Date(exitTime.getTime()-remainingDuration); 
-                 totalFee+=calculateFee(remainingEntryTime,exitTime); 
+                 let remainingFee=calculateFee(remainingEntryTime,exitTime); 
+                 if(remainingFee>120){
+                     remainingFee=120; 
+                 } 
+                 totalFee+=remainingFee; 
              } 
              result.innerHTML=`停车总时长:${days}天${hours}小时${minutes}分钟<br>总停车费:<span class='highlight'>${totalFee}元</span>`; 
          }); 
